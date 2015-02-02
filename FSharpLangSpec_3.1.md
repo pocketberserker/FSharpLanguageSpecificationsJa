@@ -655,3 +655,151 @@ Unicode文字クラスについては、正規表現用のCLIライブラリで�
 |`\n`|改行          |ASCII/UTF-8/UTF-16/UTF-32のコード10|
 |`\r`|復帰          |ASCII/UTF-8/UTF-16/UTF-32のコード13|
 |`\t`|タブ          |ASCII/UTF-8/UTF-16/UTF-32のコード09|
+
+## 4. 基本的な文法要素
+
+このセクションでは、後のセクションで繰り返し使われる文法要素を定義します。
+
+### 4.1 演算子名
+
+文法のところどころでは、 `ident` ではなく `ident-or-op` を参照します:
+
+```
+ident-or-op :=
+    | ident
+    | ( op-name )
+    | (*)
+
+op-name :=
+    | symbolic-op
+    | range-op-name
+    | active-pattern-op-name
+
+renge-op-name :=
+    | ..
+    | .. ..
+
+active-pattern-op-name :=
+    | | ident | ... | ident |
+    | | ident | ... | ident | _ |
+```
+
+演算子定義では、演算子名は括弧内に置かれます。
+例えば:
+
+```fsharp
+let (+++) x y = (x, y)
+```
+
+この例ではバイナリ演算子 `+++` を定義します。
+テキスト `(+++)` は、関連するテキスト `+++` で識別子としてふるまう `ident-or-op` です。
+同様に、アクティブパターン定義 ([セクション7](#section7)) の場合には、アクティブパターンケース名は次の例のように括弧内に置かれます:
+
+```fsharp
+let (|A|B|C|) x = if x < 0 then A elif x = 0 then B else C
+```
+
+`ident-or-op` は識別子として振る舞うため、そのような名前は式で利用できます。
+例えば:
+
+```fsharp
+List.map ((+) 1) [ 1; 2; 3 ]
+```
+
+3文字トークン `(+)` は `*` 演算子を定義します:
+
+```fsharp
+let (*) x y = (x + y)
+```
+
+`*` で始まる他の演算子を定義するためには、空白は左括弧の次にこなければなりません。
+そうでなければ `(*` はコメントの開始と解釈されます:
+
+```fsharp
+let ( *+* ) x y  (x + y)
+```
+
+記号演算子といくつかの記号的なキーワードは、 F# プログラムのコンパイルされた形式で見えるコンパイルされた名前を持っています。
+コンパイルされた名前を以下に示します。
+
+```
+[] 	op_Nil
+::	op_ColonColon
++	op_Addition
+-	op_Subtraction
+*	op_Multiply
+/	op_Division
+**	op_Exponentiation
+@	op_Append
+^	op_Concatenate
+%	op_Modulus
+&&&	op_BitwiseAnd
+|||	op_BitwiseOr
+^^^	op_ExclusiveOr
+<<<	op_LeftShift
+~~~	op_LogicalNot
+>>>	op_RightShift
+~+	op_UnaryPlus
+~-	op_UnaryNegation
+=	op_Equality
+<>	op_Inequality
+<=	op_LessThanOrEqual
+>=	op_GreaterThanOrEqual
+<	op_LessThan
+>	op_GreaterThan
+?	op_Dynamic
+?<-	op_DynamicAssignment
+|>	op_PipeRight
+||>	op_PipeRight2
+|||>	op_PipeRight3
+<|	op_PipeLeft
+<||	op_PipeLeft2
+<|||	op_PipeLeft3
+!	op_Dereference
+>>	op_ComposeRight
+<<	op_ComposeLeft
+<@ @>	op_Quotation
+<@@ @@> op_QuotationUntyped
+~%	op_Splice
+~%%	op_SpliceUntyped
+~&	op_AddressOf
+~&&	op_IntegerAddressOf
+||	op_BooleanOr
+&&	op_BooleanAnd
++=	op_AdditionAssignment
+-=	op_SubtractionAssignment
+*=	op_MultiplyAssignment
+/=	op_DivisionAssignment
+..	op_Range
+.. ..	op_RangeStep
+```
+
+他の記号演算子のためのコンパイルされた名前は、N1 から Nn が下表のような記号のための名前からなる `op_N1...Nn` です。
+例えば、記号演算子 `<*` はコンパイルされた名前 `op_LessMultiply` を持ちます:
+
+```
+>	Greater
+<	Less
++	Plus
+-	Minus
+*	Multiply
+=	Equals
+~	Twiddle
+%	Percent
+.	Dot
+&	Amp
+|	Bar
+@	At
+#	Hash
+^	Hat
+!	Bang
+?	Qmark
+/	Divide
+.	Dot
+:	Colon
+(	LParen
+,	Comma
+)	RParen
+[	LBrack
+]	RBrack
+```
