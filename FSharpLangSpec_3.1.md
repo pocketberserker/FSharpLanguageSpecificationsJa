@@ -846,3 +846,57 @@ const :=
       | false | true	-- Boolean constant of type "bool"
       | ()		-- unit constant of type "unit"
 ```
+
+### 4.4 演算子と優先順位
+
+#### 4.4.1 記号演算子の分類
+
+次の `symbolic-op` トークンは前置と中置式を構成するために用いられます。
+マーカー `OP` は 、他の場所で表に現われるトークンを除く、指定された接頭辞で始まるすべての `symbolic-op` トークンを表します。
+
+```
+infix-or-prefix-op :=
+    +,  -, +., -., %, &, &&
+
+prefix-op :=
+    infix-or-prefix-op
+    ~ ~~ ~~~  		(and any repetitions of ~)
+    !OP                  (except !=)
+
+infix-op :=
+    infix-or-prefix-op
+    -OP +OP || <OP >OP = |OP &OP ^OP *OP /OP %OP !=
+                         (or any of these preceded by one or more ‘.’)
+    :=
+    ::
+    $
+    or
+    ?
+```
+
+演算子 `+`、 `-`、 `+.`、 `-.`、 `%`、 `%%`、 `&`、 `&&` は前置と中置演算子両方に使用できます。
+これらの演算子が前置演算子として使われる場合、チルダ記号はパーザが演算子の中置とこのような使用を区別できる演算子名を生成するために内部で付加されます。
+例えば、 `-x` は `x` の `~-` への適用と解析されます。
+この生成された名前は、これらの前置演算子のための定義で使用されます。
+その結果、以下の前置演算子の定義は `~` 記号が含まれます:
+
+```fsharp
+// To completely redefine the prefix + operator:
+let (~+) x = x
+
+// To completely redefine the infix + operator to be addition modulo-7
+let (+) a b = (a + b) % 7
+
+// To define the operator on a type:
+type C(n:int) =
+    let n = n % 7
+    member x.N = n
+    static member (~+) (x:C) = x
+    static member (~-) (x:C) = C(-n)
+    static member (+) (x1:C,x2:C) = C(x1.N+x2.N)
+    static member (-) (x1:C,x2:C) = C(x1.N-x2.N)
+```
+
+`::` 演算子は特別です。
+それは不変リンクリストの先頭に要素を追加するための共用体ケースを表し、中置式形式で使えますが、再定義できません。
+それは常に — すべての共用体ケースがそうであるように — カリー化形式でなくタプル形式で引数を受け入れます。
