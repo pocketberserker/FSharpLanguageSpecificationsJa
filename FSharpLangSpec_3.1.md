@@ -816,3 +816,33 @@ long-ident-or-op :=
   | long-ident '.' ident-or-op
   | ident-or-op
 ```
+
+### 4.3 定数
+
+以下の表中の定数は、パターンと式で利用できます。
+異なる定数のための個々の字句形式は[セクション3](#section3)で定義されています。
+
+```
+const :=
+      | sbyte
+      | int16
+      | int32
+      | int64		-- 8, 16, 32 and 64-bit signed integers
+      | byte
+      | uint16
+      | uint32
+      | int		-- 32-bit signed integer
+      | uint64		-- 8, 16, 32 and 64-bit unsigned integers
+      | ieee32		-- 32-bit number of type "float32"
+      | ieee64		-- 64-bit number of type "float"
+      | bignum		-- User or library-defined integral literal type
+      | char		-- Unicode character of type "char"
+      | string		-- String of type "string" (System.String)
+      | verbatim-string	-- String of type "string" (System.String)
+      | triple-quoted-string	-- String of type "string" (System.String)
+      | bytestring	-- String of type "byte[]"
+      | verbatim-bytearray	-- String of type "byte[]"
+      | bytechar	-- Char of type "byte"
+      | false | true	-- Boolean constant of type "bool"
+      | ()		-- unit constant of type "unit"
+```
