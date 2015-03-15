@@ -803,3 +803,16 @@ let ( *+* ) x y  (x + y)
 [	LBrack
 ]	RBrack
 ```
+
+### 4.2 修飾された識別子
+
+修飾された識別子 `Long-ident` は `'.'` と任意の空白で区切られた識別子のシーケンスです。
+修飾された識別子 `Long-ident-or-op` は、演算子名で終了する修飾された識別子です。
+
+```
+long-ident :=  ident '.' ... '.' ident
+
+long-ident-or-op :=
+  | long-ident '.' ident-or-op
+  | ident-or-op
+```
